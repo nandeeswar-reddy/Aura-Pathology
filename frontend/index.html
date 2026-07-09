@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pathology Analytics Platform | Cancer Detection AI</title>
+    
+    <!-- Favicon data URL to prevent 404 console error -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23FFA800%22 stroke-width=%222%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2210%22/%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    
+    <!-- GSAP for Premium Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-blue': '#060606', /* Matched to React Hero Background */
+                        'slate': {
+                            DEFAULT: '#94a3b8',
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#141416',
+                            850: '#1e1e21',
+                            900: '#060606',
+                            950: '#030917'
+                        },
+                        'light': '#f8fafc',
+                        'cyan': { DEFAULT: '#FFA800' }, /* Hero Amber */
+                        'blue': { DEFAULT: '#FFA800' }, /* Hero Amber */
+                        'purple': { DEFAULT: '#FFA800' }, /* Hero Amber */
+                        'success': '#4466ff',
+                        'danger': '#ff4466',
+                        'warning': '#FFA800'
+                    },
+                    fontFamily: {
+                        'body': ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        'title': ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/style.css?v=3.6">
+    
+    <!-- React Hero CSS -->
+    <link rel="stylesheet" href="/assets/react/react-hero.css?v=3.6">
+</head>
+<body class="bg-deep-blue text-slate">
+    
+    <!-- React Mount Point -->
+    <div id="root"></div>
+    
+    <!-- AURA Platform (Hidden initially) -->
+    <div id="aura-app-wrapper" style="opacity: 0; pointer-events: none; height: 0; overflow: hidden; transition: opacity 1s;">
+        <!-- Subtle Moving Grid Background from Hero Page -->
+        <div class="app-grid-background"></div>
+        <!-- Glowing Particles Canvas -->
+        <canvas id="particles-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none" style="z-index: -1; transition: opacity 0.5s ease;"></canvas>
+    
+        <!-- Navigation Bar -->
+    <header class="app-header glass-header fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#home" class="flex items-center space-x-3 text-glow">
+                <i data-lucide="activity" class="h-8 w-8 text-cyan animate-pulse"></i>
+                <span class="font-title font-bold text-xl tracking-wider text-light">AURA <span class="text-cyan font-normal text-sm tracking-widest uppercase">Pathology</span></span>
+            </a>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#history" class="nav-link">History</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <div id="nav-guest-btns" class="flex items-center space-x-3">
+                    <a href="#login" class="btn btn-ghost py-2 px-4 text-sm">Sign In</a>
+                    <a href="#signup" class="btn btn-primary py-2 px-5 text-sm">Create Account</a>
+                </div>
+                <div id="nav-user-btns" class="hidden flex items-center space-x-4">
+                    <a href="#dashboard" class="btn btn-glow-border py-2 px-4 text-sm flex items-center space-x-2">
+                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <div class="relative group">
+                        <button class="profile-avatar flex items-center justify-center h-9 w-9 rounded-full bg-slate-800 border border-slate-700 text-cyan font-bold text-sm cursor-pointer">
+                            <span id="user-avatar-initials">U</span>
+                        </button>
+                        <!-- Transparent wrapper with padding to bridge the hover gap -->
+                        <div class="absolute right-0 top-full pt-2 w-48 hidden group-hover:block z-50">
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg shadow-2xl py-2 glass-card">
+                                <a href="#profile" class="block px-4 py-2 text-sm text-slate hover:text-light hover:bg-slate-800"><i data-lucide="user" class="inline h-4 w-4 mr-2"></i>Profile</a>
+                                <a href="#dashboard" class="block px-4 py-2 text-sm text-slate hover:text-light hover:bg-slate-800"><i data-lucide="layout" class="inline h-4 w-4 mr-2"></i>Dashboard</a>
+                                <hr class="border-slate-800 my-1">
+                                <a href="#" id="btn-logout" class="block px-4 py-2 text-sm text-danger hover:bg-slate-800"><i data-lucide="log-out" class="inline h-4 w-4 mr-2"></i>Sign Out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="md:hidden text-slate focus:outline-none" id="mobile-menu-btn">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Dropdown Navigation -->
+        <div id="mobile-nav" class="hidden glass-header w-full border-t border-slate-900 flex-col px-6 py-4 space-y-4">
+            <a href="#home" class="mobile-nav-link">Home</a>
+            <a href="#history" class="mobile-nav-link">History</a>
+            <a href="#contact" class="mobile-nav-link">Contact</a>
+            <div id="mobile-guest-btns" class="pt-4 border-t border-slate-800 flex flex-col space-y-3">
+                <a href="#login" class="btn btn-ghost py-2 text-center text-sm">Sign In</a>
+                <a href="#signup" class="btn btn-primary py-2 text-center text-sm">Create Account</a>
+            </div>
+            <div id="mobile-user-btns" class="hidden pt-4 border-t border-slate-800 flex flex-col space-y-3">
+                <a href="#dashboard" class="btn btn-glow-border py-2 text-center text-sm">Dashboard</a>
+                <a href="#profile" class="btn btn-ghost py-2 text-center text-sm">Profile</a>
+                <button id="mobile-btn-logout" class="btn btn-danger py-2 text-center text-sm">Sign Out</button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- PAGE VIEWS CONTAINER -->
+    <main class="pt-24 min-h-[calc(100vh-120px)] max-w-7xl mx-auto px-6 pb-12">
+        
+        <!-- VIEW: HOME -->
+        <section id="view-home" class="page-view py-8 md:py-16 space-y-24">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center space-x-2 bg-slate-900/60 border border-slate-800 rounded-full px-3 py-1 text-xs text-cyan">
+                        <i data-lucide="shield-check" class="h-4 w-4 text-cyan animate-pulse"></i>
+                        <span>Enterprise AI Pathology Platform</span>
+                    </div>
+                    <h2 class="main-title text-5xl md:text-7xl font-title font-bold mb-6 tracking-tight leading-tight">
+                        <span class="title-white text-light">AI Pathology</span> <br>
+                        <span class="title-accent text-gradient">Analytics Platform</span>
+                    </h2>
+                    <p class="text-slate text-lg max-w-xl font-body leading-relaxed">
+                        Aura is an enterprise-grade AI system engineered for precision histopathology. Powered by a <strong class="text-light">Hybrid CNN (ResNet-34) and Vision Transformer (ViT-Tiny)</strong> architecture, the platform features <strong class="text-light">Adaptive Attention Mechanisms</strong> and <strong class="text-light">GradCAM explainability</strong>. Designed to process complex tissue morphologies, Aura provides sub-second diagnostic inferences across 5 distinct tumor pathologies, delivering unprecedented clinical validation and transparency for state-of-the-art oncology research.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-4">
+                        <a href="#login" id="home-cta-btn" class="btn btn-primary py-3 px-8 text-base shadow-lg shadow-cyan/20">Scan Tissue Image</a>
+                    </div>
+                </div>
+                
+                <!-- Interactive AI Illustration / DNA Loop -->
+                <div class="relative flex justify-center items-center">
+                    
+                    <div class="dna-container glass-card p-6 rounded-2xl border border-slate-800/80 relative w-full max-w-md aspect-square flex flex-col justify-between overflow-hidden shadow-2xl">
+                        <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
+                            <span class="text-xs font-semibold tracking-wider text-cyan uppercase"><i data-lucide="activity" class="inline h-4.5 w-4.5 mr-1 align-text-bottom"></i> Real-time Feed</span>
+                            <span class="h-2 w-2 rounded-full bg-success animate-ping"></span>
+                        </div>
+                        
+                        <!-- Premium Interactive SVG Model Flow Representation -->
+                        <div class="flex-grow flex justify-center items-center relative">
+                            <svg class="w-full h-48" viewBox="0 0 400 200">
+                                <defs>
+                                    <linearGradient id="cyan-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#FFA800" stop-opacity="0.1"/>
+                                        <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                
+                                <circle cx="50" cy="100" r="30" fill="url(#cyan-gradient)" stroke="#FFA800" stroke-width="1.5" />
+                                <text x="50" y="103" fill="#94a3b8" font-size="8" text-anchor="middle" font-family="monospace">IMG</text>
+                                
+                                <path d="M 80 100 L 140 60" stroke="#FFA800" stroke-width="1" stroke-dasharray="4,4" />
+                                <path d="M 80 100 L 140 140" stroke="#FFA800" stroke-width="1" stroke-dasharray="4,4" />
+                                
+                                <rect x="140" y="40" width="80" height="40" rx="6" fill="rgba(255,255,255,0.02)" stroke="#FFA800" stroke-width="1.5" />
+                                <text x="180" y="63" fill="#f8fafc" font-size="10" text-anchor="middle" font-family="monospace">CNN</text>
+                                
+                                <rect x="140" y="120" width="80" height="40" rx="6" fill="rgba(255,255,255,0.02)" stroke="#FFA800" stroke-width="1.5" />
+                                <text x="180" y="143" fill="#f8fafc" font-size="10" text-anchor="middle" font-family="monospace">ViT</text>
+                                
+                                <path d="M 220 60 L 280 100" stroke="#FFA800" stroke-width="1" />
+                                <path d="M 220 140 L 280 100" stroke="#FFA800" stroke-width="1" />
+                                
+                                <circle cx="310" cy="100" r="30" fill="url(#cyan-gradient)" stroke="#FFA800" stroke-width="1.5" />
+                                <text x="310" y="104" font-family="'Space Grotesk'" font-size="10" fill="#F8FAFC" text-anchor="middle">DIAGNOSIS</text>
+                            </svg>
+                        </div>
+                        
+                        <div class="border-t border-slate-800/60 pt-3 flex justify-between items-center text-xs text-slate">
+                            <span>Diagnostic Engine: v1.1</span>
+                            <span>Model loaded</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animated Counters Section -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 text-center hover-glow">
+                    <h3 class="text-3xl sm:text-4xl font-title font-bold text-gradient">99.63%</h3>
+                    <p class="text-xs uppercase tracking-wider text-slate mt-2">Accuracy Rate</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 text-center hover-glow">
+                    <h3 class="text-3xl sm:text-4xl font-title font-bold text-gradient">25,000+</h3>
+                    <p class="text-xs uppercase tracking-wider text-slate mt-2">Training Dataset</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 text-center hover-glow">
+                    <h3 class="text-3xl sm:text-4xl font-title font-bold text-gradient">5 Classes</h3>
+                    <p class="text-xs uppercase tracking-wider text-slate mt-2">Tumor Pathologies</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 text-center hover-glow">
+                    <h3 class="text-3xl sm:text-4xl font-title font-bold text-gradient">GradCAM</h3>
+                    <p class="text-xs uppercase tracking-wider text-slate mt-2">Explainable AI</p>
+                </div>
+            </div>
+            
+            <!-- Feature Cards Section -->
+            <div class="space-y-8">
+                <div class="text-center space-y-2">
+                    <h2 class="font-title font-semibold text-3xl text-light">Advanced Pathology Platform Capabilities</h2>
+                    <p class="text-slate max-w-xl mx-auto">Research-grade deep learning tools designed to assist in diagnostic and clinical studies.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-blue/10 border border-blue/20 flex items-center justify-center text-primary">
+                            <i data-lucide="brain"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">AI Diagnosis</h3>
+                        <p class="text-slate text-sm font-body">Deep classification using combined ResNet and Transformer paths for reliable malignancy identification.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan">
+                            <i data-lucide="eye"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">Explainable AI (XAI)</h3>
+                        <p class="text-slate text-sm font-body">Grad-CAM visualization highlights exact pixels and tissue structural patterns triggering the AI predictions.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-purple/10 border border-purple/20 flex items-center justify-center text-purple">
+                            <i data-lucide="microscope"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">Research Grade</h3>
+                        <p class="text-slate text-sm font-body">Rigorous validation across 25,000+ slides including adenocarcinoma and squamous cell lung/colon pathologies.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-cyan/10 border border-cyan/20 flex items-center justify-center text-cyan">
+                            <i data-lucide="zap"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">Fast Prediction</h3>
+                        <p class="text-slate text-sm font-body">High-throughput GPU inference delivers detailed slide assessments in less than 500 milliseconds.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-purple/10 border border-purple/20 flex items-center justify-center text-purple">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">Medical Reports</h3>
+                        <p class="text-slate text-sm font-body">Automatically export structured PDF diagnostic sheets containing Grad-CAM maps and class confidence scores.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4 hover-glow">
+                        <div class="h-12 w-12 rounded-lg bg-blue/10 border border-blue/20 flex items-center justify-center text-primary">
+                            <i data-lucide="database"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-light">Secure Cloud History</h3>
+                        <p class="text-slate text-sm font-body">All diagnostics are securely logged, indexed, and made available instantly via your historical dashboard.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Workflow Steps -->
+            <div class="space-y-8">
+                <div class="text-center space-y-2">
+                    <h2 class="font-title font-semibold text-3xl text-light">System Processing Workflow</h2>
+                    <p class="text-slate max-w-xl mx-auto">From raw tissue slides to clear clinical outputs in five simple steps.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6 text-center">
+                    <div class="space-y-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan mx-auto font-bold font-title">1</div>
+                        <h4 class="font-semibold text-light text-sm">Upload Slide</h4>
+                        <p class="text-slate text-xs font-body">Upload raw H&E pathology images</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan mx-auto font-bold font-title">2</div>
+                        <h4 class="font-semibold text-light text-sm">AI Analysis</h4>
+                        <p class="text-slate text-xs font-body">ResNet-34 + ViT features fused</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan mx-auto font-bold font-title">3</div>
+                        <h4 class="font-semibold text-light text-sm">Grad-CAM Map</h4>
+                        <p class="text-slate text-xs font-body">Attention heatmap generated</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan mx-auto font-bold font-title">4</div>
+                        <h4 class="font-semibold text-light text-sm">Diagnosis Panel</h4>
+                        <p class="text-slate text-xs font-body">Output predictions and risk</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="h-12 w-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan mx-auto font-bold font-title">5</div>
+                        <h4 class="font-semibold text-light text-sm">PDF Report</h4>
+                        <p class="text-slate text-xs font-body">Download or store to cloud</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Research Highlights -->
+            <div class="space-y-8">
+                <div class="text-center space-y-2">
+                    <h2 class="font-title font-semibold text-3xl text-light">Validation & Research Highlights</h2>
+                    <p class="text-slate max-w-xl mx-auto">Evaluating the hybrid architecture against clinical datasets.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <div class="glass-card p-6 rounded-xl border border-slate-800/80">
+                            <h4 class="font-semibold text-light mb-2">Multi-Class Diagnostic Accuracy</h4>
+                            <p class="text-slate text-sm font-body mb-4">The combination of ResNet convolutional features (spatial) and Vision Transformer sequences (global context) allows for reliable separation of lung squamous cell carcinoma from lung adenocarcinoma and benign lung tissue.</p>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span>Colon Adenocarcinoma Accuracy</span><span class="text-cyan font-semibold">99.72%</span></div>
+                                <div class="flex justify-between"><span>Lung Adenocarcinoma Accuracy</span><span class="text-cyan font-semibold">99.55%</span></div>
+                                <div class="flex justify-between"><span>Lung Squamous Cell Carcinoma Accuracy</span><span class="text-cyan font-semibold">99.61%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4">
+                        <h4 class="font-semibold text-light">Explainability Paradigm (Grad-CAM)</h4>
+                        <p class="text-slate text-sm font-body">Medical researchers require trust. Rather than outputting classification scores blindly, AURA visualizes active feature grids in the final convolutional layers. This maps model attention directly back to cellular structures (nuclear atypia, stroma spacing) of interest to pathologists.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: LOGIN -->
+        <section id="view-login" class="page-view hidden">
+            <div class="auth-page-wrapper">
+                <!-- Global background inherited -->
+                
+                <!-- Glassmorphism Login Card -->
+                <div class="auth-glass-card space-y-6">
+                    <div class="absolute -top-10 -right-10 h-32 w-32 bg-blue rounded-full blur-[60px] opacity-35"></div>
+                    
+                    <div class="text-center space-y-2">
+                        <i data-lucide="lock" class="h-10 w-10 text-cyan mx-auto"></i>
+                        <h2 class="font-title font-semibold text-2xl text-light">System Login</h2>
+                        <p class="text-slate text-sm">Access enterprise cancer detection tools</p>
+                    </div>
+                    
+                    <div id="login-error-msg" class="hidden p-3 rounded bg-danger/10 border border-danger/20 text-danger text-xs"></div>
+                    
+                    <form id="form-login" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs uppercase tracking-wider text-slate font-medium">Email Address</label>
+                            <input type="email" id="login-email" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2.5 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Password</label>
+                                <a href="#forgot" class="text-xs text-cyan hover:underline">Forgot?</a>
+                            </div>
+                            <input type="password" id="login-password" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2.5 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="login-remember" class="rounded bg-slate-950 border-slate-800 text-cyan focus:ring-0">
+                            <label for="login-remember" class="text-xs text-slate">Keep session active</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full py-2.5 text-sm font-semibold">Sign In</button>
+                    </form>
+                    
+                    <div class="relative flex items-center justify-center my-4">
+                        <hr class="w-full border-slate-800">
+                        <span class="absolute bg-transparent px-3 text-xs text-slate uppercase" style="background: rgba(10,10,10,0.55); backdrop-filter: blur(24px);">or</span>
+                    </div>
+                    
+                    <button id="btn-login-google" class="btn btn-ghost border border-slate-800 w-full py-2.5 text-sm flex items-center justify-center space-x-2">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.28 4.114-3.517 0-6.386-2.87-6.386-6.386 0-3.518 2.87-6.386 6.386-6.386 1.625 0 3.08.618 4.19 1.625l3.1-3.1C18.665 1.995 15.685 1 12.24 1 6.035 1 1 6.035 1 12.24s5.035 11.24 11.24 11.24c6.126 0 11.24-5.035 11.24-11.24 0-.776-.08-1.52-.224-2.24H12.24z"/></svg>
+                        <span>Authenticate via SSO</span>
+                    </button>
+                    
+                    <p class="text-center text-xs text-slate">
+                        New to the platform? <a href="#signup" class="text-cyan hover:underline">Create an Account</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="view-signup" class="page-view hidden">
+            <div class="auth-page-wrapper">
+                <!-- Global background inherited -->
+                
+                <!-- Glassmorphism Signup Card -->
+                <div class="auth-glass-card auth-glass-card-wide space-y-6">
+                    <div class="absolute -top-10 -right-10 h-32 w-32 bg-purple rounded-full blur-[60px] opacity-35"></div>
+                    
+                    <div class="text-center space-y-2">
+                        <i data-lucide="user-plus" class="h-10 w-10 text-cyan mx-auto"></i>
+                        <h2 class="font-title font-semibold text-2xl text-light">Create Researcher Account</h2>
+                        <p class="text-slate text-sm">Register credential access for model scanning</p>
+                    </div>
+                    
+                    <div id="signup-error-msg" class="hidden p-3 rounded bg-danger/10 border border-danger/20 text-danger text-xs"></div>
+                    
+                    <form id="form-signup" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Full Name</label>
+                                <input type="text" id="signup-name" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Email Address</label>
+                                <input type="email" id="signup-email" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Password</label>
+                                <input type="password" id="signup-password" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Confirm Password</label>
+                                <input type="password" id="signup-confirm-password" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs uppercase tracking-wider text-slate font-medium">Affiliation / Institution</label>
+                            <input type="text" id="signup-institution" placeholder="e.g. Johns Hopkins Pathology Lab" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Country</label>
+                                <input type="text" id="signup-country" placeholder="e.g. United States" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-light text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs uppercase tracking-wider text-slate font-medium">Professional Role</label>
+                                <select id="signup-role" required class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-4 py-2 text-slate text-sm focus:outline-none focus:border-cyan backdrop-blur-sm">
+                                    <option value="" disabled selected>Select Role</option>
+                                    <option value="Researcher">Researcher</option>
+                                    <option value="Doctor">Clinical Doctor</option>
+                                    <option value="Student">Academic Student</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full py-2.5 text-sm font-semibold">Register Credentials</button>
+                    </form>
+                    
+                    <p class="text-center text-xs text-slate">
+                        Already registered? <a href="#login" class="text-cyan hover:underline">Log in here</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="page-view hidden py-8 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="font-title font-semibold text-3xl text-light">Welcome, <span id="dash-username">Researcher</span></h2>
+                    <p class="text-slate text-sm">Pathology analysis dashboard and statistics overview</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="#scan" class="btn btn-primary py-2 px-5 text-sm flex items-center space-x-2">
+                        <i data-lucide="plus" class="h-4.5 w-4.5"></i>
+                        <span>Start Scan</span>
+                    </a>
+                    <a href="#history" class="btn btn-ghost border border-slate-800 py-2 px-5 text-sm flex items-center space-x-2">
+                        <i data-lucide="history" class="h-4.5 w-4.5"></i>
+                        <span>Scan Logs</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 flex items-center space-x-4">
+                    <div class="h-12 w-12 rounded-lg bg-blue/15 border border-blue/30 flex items-center justify-center text-primary">
+                        <i data-lucide="layers" class="h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs uppercase tracking-wider text-slate">Total Tissue Scans</h4>
+                        <p id="stat-total-scans" class="text-2xl font-bold font-title text-light">0</p>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 flex items-center space-x-4">
+                    <div class="h-12 w-12 rounded-lg bg-cyan/15 border border-cyan/30 flex items-center justify-center text-cyan">
+                        <i data-lucide="activity" class="h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs uppercase tracking-wider text-slate">Successful Diagnostics</h4>
+                        <p id="stat-success-scans" class="text-2xl font-bold font-title text-light">0</p>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 flex items-center space-x-4">
+                    <div class="h-12 w-12 rounded-lg bg-purple/15 border border-purple/30 flex items-center justify-center text-purple">
+                        <i data-lucide="gauge" class="h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs uppercase tracking-wider text-slate">Average Confidence</h4>
+                        <p id="stat-avg-confidence" class="text-2xl font-bold font-title text-light">0.0%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- System Status Column -->
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                    <h3 class="font-title font-semibold text-lg text-light border-b border-slate-800/60 pb-3 flex items-center space-x-2">
+                        <i data-lucide="server" class="h-5 w-5 text-cyan"></i>
+                        <span>AI Inference Status</span>
+                    </h3>
+                    
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate">System Device</span>
+                            <span id="sys-device" class="bg-blue/10 border border-blue/20 text-primary text-xs px-2.5 py-0.5 rounded font-mono font-bold">CUDA (GPU)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate">Model State</span>
+                            <span class="flex items-center text-success text-xs font-semibold"><i class="h-2 w-2 bg-success rounded-full mr-1.5 animate-ping"></i>Loaded (Active)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate">Inference Engine</span>
+                            <span class="text-light font-mono text-xs">HybridATS-v1.1</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate">API Server Connection</span>
+                            <span class="text-success text-xs font-semibold">Online</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate">Target resolution</span>
+                            <span class="text-light font-mono text-xs">224 x 224 (Normalized)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity List Column -->
+                <div class="xl:col-span-2 glass-card p-6 rounded-xl border border-slate-800/80 space-y-4">
+                    <h3 class="font-title font-semibold text-lg text-light border-b border-slate-800/60 pb-3 flex items-center space-x-2">
+                        <i data-lucide="list-filter" class="h-5 w-5 text-cyan"></i>
+                        <span>Recent Pathology Analysis Runs</span>
+                    </h3>
+                    
+                    <div id="dashboard-activity-container" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                        <!-- Dynamic list goes here -->
+                        <div class="text-slate text-center text-sm py-8">No recent scans logged.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: SCAN IMAGE -->
+        <section id="view-scan" class="page-view hidden py-8 space-y-8">
+            <div>
+                <h2 class="font-title font-semibold text-3xl text-light">Diagnostic Analysis Engine</h2>
+                <p class="text-slate text-sm">Upload histopathological slide files for tissue classification and Grad-CAM generation</p>
+            </div>
+            
+            <div id="scan-container-main" class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Dropzone Section -->
+                <div class="xl:col-span-1 space-y-4">
+                    <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4">
+                        <h4 class="font-title font-semibold text-light text-base">Select Tissue Image</h4>
+                        
+                        <div id="dropzone" class="border-2 border-dashed border-slate-850 hover:border-cyan rounded-xl p-8 text-center cursor-pointer space-y-4 transition bg-slate-950/30 flex flex-col justify-center items-center">
+                            <i data-lucide="cloud-upload" class="h-12 w-12 text-slate animate-bounce"></i>
+                            <div class="space-y-1">
+                                <p class="text-light text-sm font-semibold">Drag & Drop file here</p>
+                                <p class="text-slate text-xs">Supports JPG, JPEG, PNG (max 10MB)</p>
+                            </div>
+                            <input type="file" id="scan-file-input" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                            <button type="button" class="btn btn-ghost border border-slate-800 py-1.5 px-4 text-xs font-semibold">Select File</button>
+                        </div>
+                        
+                        <div id="scan-file-preview-card" class="hidden p-4 rounded-lg bg-slate-900 border border-slate-850 flex items-center justify-between">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <i data-lucide="image" class="h-8 w-8 text-cyan shrink-0"></i>
+                                <div class="overflow-hidden">
+                                    <p id="preview-filename" class="text-light text-xs font-semibold truncate">image.png</p>
+                                    <p id="preview-filesize" class="text-slate text-[10px]">1.2 MB</p>
+                                </div>
+                            </div>
+                            <button id="btn-clear-scan" class="text-slate hover:text-danger"><i data-lucide="trash-2" class="h-4.5 w-4.5"></i></button>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-xs uppercase tracking-wider text-slate font-medium">Analysis Notes (Optional)</label>
+                            <textarea id="scan-notes" placeholder="Specify observations, case ID, or slide markers..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-light text-sm focus:outline-none focus:border-cyan h-20 resize-none"></textarea>
+                        </div>
+                        
+                        <button id="btn-trigger-scan" class="btn btn-primary w-full py-2.5 text-sm font-semibold flex items-center justify-center space-x-2">
+                            <i data-lucide="activity" class="h-4.5 w-4.5"></i>
+                            <span>Execute AI Detection</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results Section (Initially empty state, then dynamically populated) -->
+                <div class="xl:col-span-2">
+                    <!-- Loading State -->
+                    <div id="scan-loading-state" class="hidden glass-card p-12 rounded-xl border border-slate-800/80 text-center space-y-4">
+                        <div class="flex justify-center">
+                            <div class="h-16 w-16 rounded-full border-4 border-slate-850 border-t-cyan animate-spin"></div>
+                        </div>
+                        <h4 class="font-title font-semibold text-light text-lg">Running Neural Pipeline...</h4>
+                        <p class="text-slate text-sm max-w-xs mx-auto">Model loaded. Fusing ResNet-34 features and ViT sequences. Running Grad-CAM backpropagation.</p>
+                    </div>
+                    
+                    <!-- Empty Placeholder State -->
+                    <div id="scan-empty-state" class="glass-card p-12 rounded-xl border border-slate-800/80 text-center space-y-4 flex flex-col justify-center items-center h-full min-h-[300px]">
+                        <i data-lucide="microscope" class="h-16 w-16 text-slate"></i>
+                        <h4 class="font-title font-semibold text-slate text-lg">Awaiting Image Analysis</h4>
+                        <p class="text-slate text-xs max-w-xs mx-auto font-body">Select a histopathological slide image on the left and run analysis to display diagnostic outputs and explainability maps.</p>
+                    </div>
+                    
+                    <!-- Dynamic scan result dashboard (hidden initially) -->
+                    <div id="scan-result-card" class="hidden glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
+                            <h3 class="font-title font-semibold text-lg text-light">Diagnostic Output Report</h3>
+                            <div class="flex space-x-2">
+                                <button id="btn-download-scan-pdf" class="btn btn-ghost border border-slate-800 py-1.5 px-3 text-xs flex items-center space-x-1.5"><i data-lucide="download" class="h-3.5 w-3.5"></i><span>PDF Report</span></button>
+                                <button id="btn-new-scan-reset" class="btn btn-ghost py-1.5 px-3 text-xs flex items-center space-x-1.5"><i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i><span>New Scan</span></button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Visualizer slider overlay -->
+                            <div class="space-y-3">
+                                <h4 class="text-xs uppercase tracking-wider text-slate font-medium">Tissue Attention Overlay (Grad-CAM)</h4>
+                                <div class="image-slider-container relative rounded-lg border border-slate-800 overflow-hidden bg-slate-950 flex justify-center items-center aspect-square">
+                                    <img id="result-original-img" src="" class="absolute inset-0 w-full h-full object-cover">
+                                    <img id="result-gradcam-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-70">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <div class="flex justify-between text-xs text-slate">
+                                        <span>Original H&E Slide</span>
+                                        <span>Grad-CAM Attention Map</span>
+                                    </div>
+                                    <input type="range" id="gradcam-opacity-slider" min="0" max="100" value="70" class="w-full accent-cyan">
+                                </div>
+                            </div>
+                            
+                            <!-- Classification metrics -->
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <div class="space-y-1">
+                                        <h5 class="text-xs uppercase tracking-wider text-slate">Final AI Diagnosis</h5>
+                                        <div id="result-diagnosis-badge" class="text-lg font-bold font-title">Unknown Path</div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="p-3 bg-slate-900/60 border border-slate-850 rounded-lg">
+                                            <h6 class="text-[10px] uppercase tracking-wider text-slate">Confidence</h6>
+                                            <p id="result-confidence" class="text-lg font-bold font-title text-light">0.0%</p>
+                                        </div>
+                                        <div class="p-3 bg-slate-900/60 border border-slate-850 rounded-lg">
+                                            <h6 class="text-[10px] uppercase tracking-wider text-slate">Risk Category</h6>
+                                            <p id="result-risk-level" class="text-lg font-bold font-title text-light">Low</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <h5 class="text-xs uppercase tracking-wider text-slate font-medium">Model Probability Distribution</h5>
+                                    <!-- Plotly container -->
+                                    <div id="result-probability-chart" class="w-full h-40"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-slate-800/60 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-xs">
+                            <div class="p-2.5 bg-slate-900/40 border border-slate-850 rounded-lg">
+                                <span class="text-slate block mb-1">Inference Speed</span>
+                                <strong id="result-speed" class="text-light font-mono">0.0s</strong>
+                            </div>
+                            <div class="p-2.5 bg-slate-900/40 border border-slate-850 rounded-lg">
+                                <span class="text-slate block mb-1">Engine Code</span>
+                                <strong id="result-version" class="text-light font-mono">HybridATS-v1.1</strong>
+                            </div>
+                            <div class="p-2.5 bg-slate-900/40 border border-slate-850 rounded-lg">
+                                <span class="text-slate block mb-1">Source Dataset</span>
+                                <strong id="result-dataset" class="text-light font-mono">TCGA Subset</strong>
+                            </div>
+                            <div class="p-2.5 bg-slate-900/40 border border-slate-850 rounded-lg">
+                                <span class="text-slate block mb-1">Verification Status</span>
+                                <strong class="text-success flex items-center justify-center"><i data-lucide="check-circle" class="h-3.5 w-3.5 mr-1 shrink-0"></i>Valid</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: SCAN HISTORY -->
+        <section id="view-history" class="page-view hidden py-8 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="font-title font-semibold text-3xl text-light">Histopathological Scan Logs</h2>
+                    <p class="text-slate text-sm">Review, filter, and export historical analysis reports</p>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                <!-- Search & Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3.5 top-3 h-4.5 w-4.5 text-slate"></i>
+                        <input type="text" id="history-search" placeholder="Search by Diagnosis or ID..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-light text-sm focus:outline-none focus:border-cyan">
+                    </div>
+                    <div>
+                        <select id="history-filter-class" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-slate text-sm focus:outline-none focus:border-cyan">
+                            <option value="">All Pathology Types</option>
+                            <option value="Colon Adenocarcinoma">Colon Adenocarcinoma</option>
+                            <option value="Benign Colon Tissue">Benign Colon Tissue</option>
+                            <option value="Lung Adenocarcinoma">Lung Adenocarcinoma</option>
+                            <option value="Benign Lung Tissue">Benign Lung Tissue</option>
+                            <option value="Lung Squamous Cell Carcinoma">Lung Squamous Cell Carcinoma</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="history-filter-risk" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-slate text-sm focus:outline-none focus:border-cyan">
+                            <option value="">All Risk Categories</option>
+                            <option value="High Risk">High Risk</option>
+                            <option value="Moderate Risk">Moderate Risk</option>
+                            <option value="Low Risk">Low Risk</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Table Container -->
+                <div class="overflow-x-auto overflow-y-auto w-full max-h-[500px] border border-slate-800/40 rounded-lg custom-scrollbar">
+                    <table class="w-full text-sm text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate uppercase text-[10px] tracking-wider font-semibold">
+                                <th class="py-3 px-4">Scan ID</th>
+                                <th class="py-3 px-4">Timestamp</th>
+                                <th class="py-3 px-4">AI Prediction</th>
+                                <th class="py-3 px-4">Confidence</th>
+                                <th class="py-3 px-4">Risk Category</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-850/40 text-light font-body">
+                            <!-- Dynamic history logs go here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Empty state for history -->
+                <div id="history-empty" class="hidden text-center text-slate py-12 space-y-3">
+                    <i data-lucide="inbox" class="h-12 w-12 text-slate mx-auto"></i>
+                    <p class="text-sm">No analysis reports match the filters or exist for this account.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: REPORT DETAILS -->
+        <section id="view-report" class="page-view hidden py-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <a href="#history" class="text-slate hover:text-light"><i data-lucide="arrow-left" class="h-5 w-5"></i></a>
+                    <div>
+                        <h2 class="font-title font-semibold text-2xl text-light">Report #<span id="rep-id">00</span></h2>
+                        <p class="text-slate text-xs">Generated on <span id="rep-date">YYYY-MM-DD</span></p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="btn-download-rep-pdf" class="btn btn-primary py-2 px-4 text-xs flex items-center space-x-1.5"><i data-lucide="printer" class="h-3.5 w-3.5"></i><span>Print / Export PDF</span></button>
+                    <button id="btn-delete-rep" class="btn btn-danger py-2 px-4 text-xs flex items-center space-x-1.5"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i><span>Delete Report</span></button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Visuals Column -->
+                <div class="xl:col-span-2 glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                    <h3 class="font-title font-semibold text-base text-light border-b border-slate-800/60 pb-2">Microscopic Overlay Assessment</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate">Original slide</span>
+                            <div class="rounded-lg border border-slate-800 overflow-hidden bg-slate-950 aspect-square flex justify-center items-center">
+                                <img id="rep-orig-img" src="" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate">Grad-CAM overlay</span>
+                            <div class="rounded-lg border border-slate-800 overflow-hidden bg-slate-950 aspect-square flex justify-center items-center">
+                                <img id="rep-cam-img" src="" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Report Metrics Column -->
+                <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                    <h3 class="font-title font-semibold text-base text-light border-b border-slate-800/60 pb-2">Analysis Parameters</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-slate-850 pb-2">
+                            <span class="text-slate text-xs">Diagnostic Class</span>
+                            <strong id="rep-class" class="text-light text-sm">Class Label</strong>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-850 pb-2">
+                            <span class="text-slate text-xs">Confidence Score</span>
+                            <strong id="rep-confidence" class="text-light text-sm">0.0%</strong>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-850 pb-2">
+                            <span class="text-slate text-xs">Risk Classification</span>
+                            <strong id="rep-risk" class="text-light text-sm">Low</strong>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-850 pb-2">
+                            <span class="text-slate text-xs">Inference Latency</span>
+                            <strong id="rep-latency" class="text-light text-sm font-mono">0.0s</strong>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-850 pb-2">
+                            <span class="text-slate text-xs">Model Version</span>
+                            <strong class="text-light text-sm font-mono">HybridATS-v1.1</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <h4 class="text-xs uppercase tracking-wider text-slate font-medium">Probability Distribution</h4>
+                        <div id="rep-probability-chart" class="w-full h-40"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-4">
+                <h3 class="font-title font-semibold text-base text-light border-b border-slate-800/60 pb-2">Case Annotations & Notes</h3>
+                <div class="p-4 bg-slate-950/60 border border-slate-850 rounded-lg text-slate text-sm min-h-[60px]" id="rep-notes">
+                    No notes provided for this scan run.
+                </div>
+            </div>
+        </section>
+        
+
+
+        
+        <!-- VIEW: PROFILE -->
+        <section id="view-profile" class="page-view hidden py-8 max-w-2xl mx-auto space-y-8">
+            <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 h-32 w-32 bg-blue rounded-full blur-[60px] opacity-20"></div>
+                
+                <div class="flex flex-col items-center space-y-3">
+                    <div class="h-20 w-20 rounded-full bg-slate-900 border border-slate-850 text-cyan text-3xl font-title font-bold flex items-center justify-center shadow-xl">
+                        <span id="prof-initials">U</span>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 id="prof-name" class="text-xl font-bold font-title text-light">Researcher Name</h3>
+                        <p id="prof-role-badge" class="text-xs bg-slate-950 border border-slate-850 px-2.5 py-0.5 rounded-full text-slate inline-block">Researcher</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-left pt-6 border-t border-slate-800">
+                    <div class="space-y-1">
+                        <span class="text-slate text-xs uppercase tracking-wider block">Email Address</span>
+                        <strong id="prof-email" class="text-light">name@institution.edu</strong>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-slate text-xs uppercase tracking-wider block">Affiliation</span>
+                        <strong id="prof-institution" class="text-light">University Medical Center</strong>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-slate text-xs uppercase tracking-wider block">Country</span>
+                        <strong id="prof-country" class="text-light">Country</strong>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-slate text-xs uppercase tracking-wider block">Registered At</span>
+                        <strong id="prof-date" class="text-light">YYYY-MM-DD</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                <h3 class="font-title font-semibold text-lg text-light border-b border-slate-800/60 pb-3 flex items-center space-x-2">
+                    <i data-lucide="settings" class="h-5 w-5 text-cyan"></i>
+                    <span>Profile Management & Account Settings</span>
+                </h3>
+                
+                <div class="flex gap-4">
+                    <button id="btn-profile-logout" class="btn btn-danger py-2 px-5 text-sm">Sign Out Account</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIEW: CONTACT -->
+        <section id="view-contact" class="page-view hidden py-8 max-w-2xl mx-auto space-y-8">
+            <div class="glass-card p-6 rounded-xl border border-slate-800/80 space-y-6">
+                <div class="space-y-2 text-center">
+                    <h2 class="font-title font-semibold text-2xl text-light">Connect with the Research Team</h2>
+                    <p class="text-slate text-sm">For partnerships, data sharing, or academic inquiries</p>
+                </div>
+                
+                <div id="contact-success-msg" class="hidden p-3 rounded bg-success/10 border border-success/20 text-success text-xs">Your inquiry was successfully sent.</div>
+                
+                <!-- Hidden iframe to submit contact form silently without page redirects -->
+                <iframe name="contact-form-iframe" id="contact-form-iframe" style="display: none;"></iframe>
+                
+                <form id="form-contact" action="https://formsubmit.co/nandeswar72@gmail.com" method="POST" target="contact-form-iframe" class="space-y-4">
+                    <!-- Disable captcha verification to submit silently and instantly -->
+                    <input type="hidden" name="_captcha" value="false">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs uppercase tracking-wider text-slate font-medium">Your Name</label>
+                            <input type="text" name="name" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-light text-sm focus:outline-none focus:border-cyan">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs uppercase tracking-wider text-slate font-medium">Professional Email</label>
+                            <input type="email" name="email" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-light text-sm focus:outline-none focus:border-cyan">
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs uppercase tracking-wider text-slate font-medium">Inquiry Topic</label>
+                        <input type="text" name="subject" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-light text-sm focus:outline-none focus:border-cyan">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs uppercase tracking-wider text-slate font-medium">Detailed Message</label>
+                        <textarea name="message" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-light text-sm focus:outline-none focus:border-cyan h-32 resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full py-2.5 text-sm font-semibold">Submit Inquiry</button>
+                </form>
+                
+                <div class="pt-6 border-t border-slate-800 flex justify-center space-x-6 text-slate text-sm">
+                    <a href="https://github.com" target="_blank" class="hover:text-cyan flex items-center space-x-1.5"><svg class="inline h-4 w-4 align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg><span>GitHub</span></a>
+                    <a href="https://linkedin.com" target="_blank" class="hover:text-cyan flex items-center space-x-1.5"><svg class="inline h-4 w-4 align-text-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg><span>LinkedIn</span></a>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- Professional medical AI footer -->
+    <footer class="border-t border-slate-900 bg-deep-blue/80 backdrop-blur-md py-8 mt-12 text-xs">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div class="space-y-2">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="activity" class="h-5 w-5 text-cyan"></i>
+                    <span class="font-title font-semibold tracking-wider text-light">AURA PLATFORM</span>
+                </div>
+                <p class="text-slate font-body max-w-md">Enterprise deep learning platform for automated histopathological tumor detection and feature visualization.</p>
+            </div>
+            
+            <div class="flex flex-col md:items-end space-y-4">
+                <div class="flex space-x-6 text-slate">
+                    <a href="#" class="hover:text-cyan">Documentation</a>
+                    <a href="#research" class="hover:text-cyan">Research Paper</a>
+                    <a href="#" class="hover:text-cyan">Terms of Service</a>
+                </div>
+                <div class="text-[10px] text-slate/60 text-right">
+                    <span>© 2026 AURA Platform. Strictly for Research and Educational Use.</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/js/app.js?v=3.7"></script>
+    
+    </div> <!-- End aura-app-wrapper -->
+
+    <!-- Mount React Hero App -->
+    <!-- The hero animations and 3D scenes are fully rendered by React -->
+    <script type="module" crossorigin src="/assets/react/react-hero.js?v=3.7"></script>
+
+    <!-- Transition Logic -->
+    <script>
+        window.addEventListener('launchAura', () => {
+            const reactRoot = document.getElementById('root');
+            const auraWrapper = document.getElementById('aura-app-wrapper');
+            
+            // Immediately expand height so layout can establish
+            auraWrapper.style.height = 'auto';
+            auraWrapper.style.overflow = 'visible';
+            
+            // Wait a tiny bit for the DOM to update layout, then fade out React and fade in AURA
+            requestAnimationFrame(() => {
+                // Fade out React overlay
+                reactRoot.style.transition = 'opacity 1s ease-in-out';
+                reactRoot.style.opacity = '0';
+                
+                // Fade in AURA app
+                auraWrapper.style.opacity = '1';
+                auraWrapper.style.pointerEvents = 'auto';
+                
+                // Completely destroy the React overlay and WebGL context to free 100% of the GPU
+                setTimeout(() => {
+                    if (window.__REACT_HERO_ROOT__) {
+                        window.__REACT_HERO_ROOT__.unmount();
+                    }
+                    reactRoot.remove();
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

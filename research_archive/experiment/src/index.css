@@ -1,0 +1,432 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #030917;
+}
+
+.canvas-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background-color: #060606; /* Very dark base so the glowing grid pops subtly */
+  overflow: hidden;
+}
+
+/* Subtle Animated Square Grid */
+.grid-background {
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: calc(100vw + 120px);
+  height: calc(100vh + 120px);
+  /* The exact neon amber color, but extremely transparent (just 4%) */
+  background-image: 
+    linear-gradient(to right, rgba(255, 168, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 168, 0, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  /* Pan it slowly diagonally (removed the pulse so it never disappears) */
+  animation: gridPan 15s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes gridPan {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
+}
+
+/* Animated Data Beams on the Grid */
+.beams-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* prevent beams from causing scrollbars */
+}
+
+.grid-beam {
+  position: absolute;
+  /* Just slightly more opaque (15%) than the 4% grid lines to be barely noticeable */
+  background: rgba(255, 168, 0, 0.15); 
+  box-shadow: 0 0 6px rgba(255, 168, 0, 0.2);
+  border-radius: 2px;
+}
+
+.beam-h {
+  height: 1px;
+  left: -300px; /* start offscreen */
+  animation: shoot-h linear infinite;
+}
+
+.beam-v {
+  width: 1px;
+  top: -300px; /* start offscreen */
+  animation: shoot-v linear infinite;
+}
+
+@keyframes shoot-h {
+  0% { transform: translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(120vw); opacity: 0; }
+}
+
+@keyframes shoot-v {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(120vh); opacity: 0; }
+}
+
+#root {
+  position: relative;
+  width: 100%;
+}
+
+/* UI Overlay Styles */
+.ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem 2rem; /* Reduced horizontal padding to push text closer to the edges of the screen */
+  box-sizing: border-box;
+  color: white;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  z-index: 10;
+}
+
+/* Custom Scrollbar for React UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ui-panel {
+  pointer-events: auto; /* Make text selectable */
+  max-width: 22vw; /* Reduced from 25vw to give the spinning DNA even more clearance */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.ui-left {
+  text-align: left;
+}
+
+.ui-right {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.ui-panel h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #FFA800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255, 122, 0, 0.4), 0 0 20px rgba(255, 199, 0, 0.2);
+}
+
+.main-title {
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+  text-shadow: none !important;
+}
+
+.title-white {
+  color: #E4E4E7;
+}
+
+.title-accent {
+  background: linear-gradient(180deg, #FF7A00 0%, #FFC700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #FFC700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255, 122, 0, 0.4), 0 0 20px rgba(255, 199, 0, 0.2);
+}
+
+.ui-panel h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem; /* slightly less margin */
+  font-weight: 300;
+  color: #D1D5DB;
+  line-height: 1.4;
+}
+
+.list-section {
+  margin-bottom: 1.2rem; /* slightly less margin */
+}
+
+.ui-panel h4 {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: #FFA800; /* Match DNA yellow/orange glow */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255, 122, 0, 0.4), 0 0 20px rgba(255, 199, 0, 0.2);
+}
+
+.ui-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ui-panel li {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #D1D5DB;
+  line-height: 1.4;
+  font-weight: 300;
+}
+
+.glow-check {
+  color: #FFA800;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(255, 122, 0, 0.4), 0 0 20px rgba(255, 199, 0, 0.2);
+  margin-right: 6px;
+}
+
+.disclaimer-box {
+  margin-top: 3rem; /* Push down slightly from the team members */
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  /* Yellow glow margin on left and top exactly as requested */
+  border-left: 3px solid #FF9E00; 
+  border-top: 3px solid #FF9E00;
+  box-shadow: -4px -4px 15px rgba(255, 158, 0, 0.2);
+  border-radius: 0 12px 12px 12px;
+  backdrop-filter: blur(4px);
+}
+
+.disclaimer-box h4 {
+  color: #FFA800;
+  margin-bottom: 0.5rem;
+  text-shadow: none; /* No glow on disclaimer title */
+}
+
+.disclaimer-box p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.team-members {
+  margin-top: 1.5rem;
+  border-right: 3px solid #FF9E00; /* Changed from blue to yellow to match DNA glow */
+  padding-right: 1.5rem;
+}
+
+.team-members p {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  color: #D1D5DB;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* Launch Workspace Button */
+.launch-button-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: auto;
+  /* drop-shadow works perfectly with clip-path to create a glowing aura around the cut shape */
+  filter: drop-shadow(0 0 15px rgba(255, 168, 0, 0.4));
+}
+
+.launch-button {
+  display: block;
+  padding: 0.8rem 3.5rem 0.8rem 2rem;
+  background-color: #FFA800; /* DNA Amber */
+  color: #000000;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  /* Cyberpunk slanted cut on the right side */
+  clip-path: polygon(0 0, calc(100% - 25px) 0, 100% 100%, 0 100%);
+  transition: all 0.2s ease-in-out;
+}
+
+.launch-button:hover {
+  background-color: #FFC700; /* Brightens on hover */
+  padding-left: 2.5rem; /* Subtle text slide effect */
+}
+
+/* --- CINEMATIC LAUNCH TRANSITION --- */
+
+.transition-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100; /* Highest priority */
+  /* Slowed down the fade to black, and increased the delay so you can watch the camera travel longer */
+  transition: opacity 2.5s ease-in-out;
+  transition-delay: 2.5s; 
+}
+
+.transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto; /* Block all interactions once black */
+}
+
+/* Fade out UI layers smoothly (Removed transforms to drastically fix GPU lag) */
+.ui-layer {
+  transition: opacity 0.6s ease-out;
+  will-change: opacity;
+}
+.ui-layer.launching {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.launch-button-wrapper {
+  transition: opacity 0.4s ease-out;
+  will-change: opacity;
+}
+.launch-button-wrapper.launching {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grid-background {
+  transition: opacity 2s ease-out;
+  will-change: opacity;
+}
+.grid-background.launching {
+  opacity: 0; /* Fade out the grid as we dive in */
+}
+
+/* --- WORKSPACE PLACEHOLDER --- */
+.workspace-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 2rem 3rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid #FFA800; 
+  border-top: 3px solid #FFA800;
+  box-shadow: -4px -4px 15px rgba(255, 168, 0, 0.2);
+  border-radius: 0 12px 12px 12px;
+  backdrop-filter: blur(4px);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  transition-delay: 5s; /* Fade in right AFTER the screen goes completely black (2.5s delay + 2.5s fade) */
+}
+
+.transition-overlay.active .workspace-placeholder {
+  opacity: 1;
+}
+
+.workspace-placeholder h4 {
+  color: #FFA800;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(255, 168, 0, 0.4);
+}
+
+.workspace-placeholder p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #9CA3AF;
+  font-weight: 300;
+}
+
+/* Responsiveness for smaller screens where width isn't enough */
+@media (max-width: 1200px) {
+  .ui-layer {
+    padding: 2rem;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    pointer-events: auto;
+  }
+  .ui-panel {
+    max-width: 100%;
+    background: rgba(10, 10, 10, 0.7);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    height: auto;
+  }
+  .ui-right {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .team-members {
+    border-right: none;
+    border-left: 3px solid #4466ff;
+    padding-right: 0;
+    padding-left: 1.5rem;
+  }
+}
+
+/* Mobile Responsiveness for React Hero UI */
+@media (max-width: 768px) {
+  .ui-layer {
+    padding: 1rem;
+    padding-bottom: 90px; /* Ensure space for the launch button */
+  }
+  .ui-panel {
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .ui-panel h2 {
+    font-size: 1.3rem;
+  }
+  .main-title {
+    font-size: 1.4rem !important;
+  }
+  .ui-panel h3 {
+    font-size: 0.95rem;
+  }
+  .team-members p {
+    font-size: 0.95rem;
+  }
+  .disclaimer-box {
+    display: none;
+  }
+  .launch-button {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+  }
+}
